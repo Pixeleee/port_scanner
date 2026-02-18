@@ -29,6 +29,8 @@ for port in target_ports:
                 # "야, 너 누구야?" 라고 찔러보는 패킷
                 msg = b"GET / HTTP/1.1\r\nHost: " + target_ip.encode() + b"\r\n\r\n"
                 sock.send(msg)
+
+                ## 참고로, 일부 서비스는 아무런 패킷을 보내지 않아도 배너를 보내주는 경우가 많습니다.
                 
                 # 2. 대답을 듣는다
                 banner = sock.recv(1024)
