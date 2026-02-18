@@ -1,7 +1,7 @@
 import socket
 from colorama import init, Fore
 
-init()
+init(autoreset=True)
 
 target_ip = input("스캔할 IP를 입력하세요 (예: 127.0.0.1): ")
 print(f"{Fore.CYAN}--- [{target_ip}] 배너 그래빙 스캔 시작 ---{Fore.RESET}")
@@ -16,7 +16,13 @@ for port in target_ports:
         result = sock.connect_ex((target_ip, port))
         
         if result == 0:
-            print(f"{Fore.GREEN}[+] Port {port}: OPEN{Fore.RESET}", end='')
+            try:
+                service = socket.getservbyport(port, 'tcp')
+            except:
+                service = "Unknown"
+            
+            # 출력할 때 서비스 이름도 같이 보여줌
+            print(f"{Fore.GREEN}[+] Port {port} ({service}): OPEN{Fore.RESET}")
             
             try:
                 # [핵심 수정] 1. 먼저 말을 건넨다! (가장 무난한 HTTP 요청)
