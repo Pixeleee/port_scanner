@@ -14,7 +14,7 @@ for port in target_ports:
         sock.settimeout(2) # 타임아웃을 조금 넉넉히 2초로
         
         result = sock.connect_ex((target_ip, port))
-        
+        #123
         if result == 0:
             try:
                 service = socket.getservbyport(port, 'tcp')
