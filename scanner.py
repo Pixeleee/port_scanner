@@ -1,12 +1,32 @@
 import socket
+import argparse  # [추가] 명령어 인자값을 처리하는 라이브러리
+from datetime import datetime
 from colorama import init, Fore
 
 init(autoreset=True)
 
-target_ip = input("스캔할 IP를 입력하세요 (예: 127.0.0.1): ")
-print(f"{Fore.CYAN}--- [{target_ip}] 배너 그래빙 스캔 시작 ---{Fore.RESET}")
+# ---------------- [CLI 설정 파트] ----------------
+# 1. 파서 객체 생성 (프로그램 설명서 쓰기)
+parser = argparse.ArgumentParser(description="나만의 짱 쎈 포트 스캐너 (v1.1)")
 
-target_ports = [21, 22, 80, 135, 443, 445, 3306, 8080, 11434]
+# 2. 옵션 추가하기 (단축어, 원래이름, 필수여부, 도움말)
+parser.add_argument('-t', '--target', required=True, help="스캔할 타겟 IP 주소 (예: 127.0.0.1)")
+parser.add_argument('-p', '--ports', default="21,22,80,135,443,445,3306,8080,11434", help="스캔할 포트 번호들 (쉼표로 구분)")
+
+# 3. 사용자가 터미널에 친 명령어 읽어오기
+args = parser.parse_args()
+
+target_ip = args.target
+
+# "80,443" 같은 문자열을 잘라서 [80, 443] 같은 정수 리스트로 변환
+try:
+    target_ports = [int(p.strip()) for p in args.ports.split(',')]
+except ValueError:
+    print(f"{Fore.RED}[오류] 포트는 숫자와 쉼표로만 입력해야 합니다!{Fore.RESET}")
+    exit(1)
+# -------------------------------------------------
+
+print(f"{Fore.CYAN}--- [{target_ip}] 스캔 시작 (대상 포트: {len(target_ports)}개) ---{Fore.RESET}")
 
 for port in target_ports:
     try:
