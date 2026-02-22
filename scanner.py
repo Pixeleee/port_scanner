@@ -1,7 +1,9 @@
 import socket
 import argparse  # [추가] 명령어 인자값을 처리하는 라이브러리
+import concurrent.futures # [추가] 분신술을 쓰기 위한 모듈
 from datetime import datetime
 from colorama import init, Fore
+
 
 init(autoreset=True)
 
@@ -18,53 +20,45 @@ args = parser.parse_args()
 
 target_ip = args.target
 
-# "80,443" 같은 문자열을 잘라서 [80, 443] 같은 정수 리스트로 변환
-try:
+# 범위를 입력받는 기능 추가! (예: 1-1000)
+if '-' in args.ports:
+    start, end = map(int, args.ports.split('-'))
+    target_ports = list(range(start, end + 1))
+else:
     target_ports = [int(p.strip()) for p in args.ports.split(',')]
-except ValueError:
-    print(f"{Fore.RED}[오류] 포트는 숫자와 쉼표로만 입력해야 합니다!{Fore.RESET}")
-    exit(1)
-# -------------------------------------------------
-
-print(f"{Fore.CYAN}--- [{target_ip}] 스캔 시작 (대상 포트: {len(target_ports)}개) ---{Fore.RESET}")
-
-for port in target_ports:
+# ----------------------------------------------------------------
+# [핵심 1] 작업 지시서(함수) 만들기
+# 일꾼 한 명이 포트 한 개를 맡아서 실행할 코드입니다.
+def scan_port(ip, port):
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(2) # 타임아웃을 조금 넉넉히 2초로
-        
-        result = sock.connect_ex((target_ip, port))
-        #123
+        sock.settimeout(1)  # 속도가 생명이니 타임아웃은 1초!
+        result = sock.connect_ex((ip, port))
+
         if result == 0:
             try:
                 service = socket.getservbyport(port, 'tcp')
             except:
                 service = "Unknown"
-            
-            # 출력할 때 서비스 이름도 같이 보여줌
+
+            # 주의: 다중 스레드에서는 화면이 엉킬 수 있어서 배너 가져오기는 일단 뺐습니다.
             print(f"{Fore.GREEN}[+] Port {port} ({service}): OPEN{Fore.RESET}")
-            
-            try:
-                # [핵심 수정] 1. 먼저 말을 건넨다! (가장 무난한 HTTP 요청)
-                # "야, 너 누구야?" 라고 찔러보는 패킷
-                msg = b"GET / HTTP/1.1\r\nHost: " + target_ip.encode() + b"\r\n\r\n"
-                sock.send(msg)
 
-                ## 참고로, 일부 서비스는 아무런 패킷을 보내지 않아도 배너를 보내주는 경우가 많습니다.
-                
-                # 2. 대답을 듣는다
-                banner = sock.recv(1024)
-                
-                # 3. 깨짐 방지 (SMB 같은 애들은 이상한 문자 보내므로 ignore 처리)
-                print(f" -> {Fore.YELLOW}{banner.decode('utf-8', errors='ignore').strip()[:50]}...{Fore.RESET}")
-                
-            except:
-                print(f" -> {Fore.WHITE}(응답 없음){Fore.RESET}")
-        else:
-            print(f"{Fore.RED}[-] Port {port}: CLOSED{Fore.RESET}")
-            
         sock.close()
-    except Exception as e:
-        print(f"Error: {e}")
+    except Exception:
+        pass
 
-print(f"{Fore.CYAN}--- 스캔 완료 ---{Fore.RESET}")
+
+# --- 메인 실행 파트 ---
+print(f"{Fore.CYAN}--- [{target_ip}] 멀티스레드 스캔 시작 (대상 포트: {len(target_ports)}개) ---{Fore.RESET}")
+start_time = datetime.now()  # 스캔 시작 시간 기록
+
+# [핵심 2] 일꾼 100명 고용해서 동시에 일 시키기!
+# max_workers가 일꾼의 수입니다. (너무 많으면 컴퓨터가 힘들어해요)
+with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
+    for port in target_ports:
+        # 일꾼에게 (함수이름, IP, 포트)를 던져주면 알아서 동시에 실행합니다.
+        executor.submit(scan_port, target_ip, port)
+
+end_time = datetime.now()  # 스캔 종료 시간 기록
+print(f"{Fore.CYAN}--- 스캔 완료 (소요 시간: {end_time - start_time}) ---{Fore.RESET}")
