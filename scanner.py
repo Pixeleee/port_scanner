@@ -27,6 +27,15 @@ if '-' in args.ports:
 else:
     target_ports = [int(p.strip()) for p in args.ports.split(',')]
 # ----------------------------------------------------------------
+
+VULNERABLE_PORTS = {
+    21: "FTP (암호화 안 됨! 비밀번호 도청 위험)",
+    23: "Telnet (절대 사용 금지! 해킹 1순위)",
+    135: "RPC (시스템 정보 유출 가능성)",
+    445: "SMB (워너크라이 랜섬웨어 단골 타겟. 외부 노출 금지!)",
+    3389: "RDP (원격 데스크톱. 무차별 대입 공격 주의)"
+}
+
 # [핵심 1] 작업 지시서(함수) 만들기
 # 일꾼 한 명이 포트 한 개를 맡아서 실행할 코드입니다.
 def scan_port(ip, port):
@@ -43,6 +52,10 @@ def scan_port(ip, port):
 
             # 주의: 다중 스레드에서는 화면이 엉킬 수 있어서 배너 가져오기는 일단 뺐습니다.
             print(f"{Fore.GREEN}[+] Port {port} ({service}): OPEN{Fore.RESET}")
+
+            # 2. [추가] 만약 열린 포트가 블랙리스트에 있다면? 빨간색 경고 날리기!
+            if port in VULNERABLE_PORTS:
+                print(f" └── {Fore.RED}[🚨 취약점 경고] {VULNERABLE_PORTS[port]}{Fore.RESET}")
 
         sock.close()
     except Exception:
