@@ -8,18 +8,18 @@ Python Port Scanner & Banner Grabber
 
 <br>
 
-## 📌 프로젝트 소개
+## 프로젝트 소개
 Python의 소켓(Socket) 통신을 활용하여 타겟 IP의 열려있는 포트를 확인하고, 해당 포트에서 실행 중인 서비스를 식별(Banner Grabbing)하는 CLI 기반 네트워크 유틸리티입니다.
 
 기존 파이썬 가상환경 설정의 번거로움과 **"내 컴퓨터에선 되는데?"** 라는 환경 의존성 문제를 해결하기 위해 **Docker**를 도입했습니다. 이를 통해 파이썬이 설치되지 않은 환경에서도 언제 어디서나 동일하게 스캐너를 실행할 수 있는 완벽한 이식성을 구현했습니다.
 
-## ✨ 주요 기능
+## 주요 기능
 - **TCP 포트 스캐닝**: `connect_ex`를 활용한 TCP 3-Way Handshake 기반의 안정적인 스캔
 - **배너 그래빙(Banner Grabbing)**: HTTP GET 요청을 통한 서비스 정체(HTTP, SMB 등) 파악 및 예외 처리
 - **서비스 이름 식별**: `getservbyport`를 활용하여 지정된 포트 번호에 할당된 기본 서비스 이름 매칭
 - **컨테이너화(Dockerizing)**: 도커를 통한 완벽한 실행 환경 격리(Isolation) 및 패키징
 
-## 🚀 시작하기 (Getting Started)
+## 시작하기 (Getting Started)
 
 ### Docker로 실행하기 (Recommended)
 파이썬이나 가상환경 세팅 없이, Docker만 설치되어 있다면 즉시 실행 가능합니다.
@@ -70,6 +70,7 @@ Phase 4: 취약점 분석 로직 통합 (Vulnerability Scanning)
 운영체제 레벨 오류 해결: DLL 의존성 누락으로 인한 Exit Code 1 (-1073741515) 발생 시, 가상환경을 파기하고 Python 엔진 버전을 강제 고정(pin 3.12)하여 재구축(Immutable Infrastructure 개념 적용)함으로써 깔끔하게 문제를 해결함.
 
 버전 관리 (Git): git commit --date를 활용한 커밋 기록 관리 및 Staging(add), Push 워크플로우를 숙달함.
+
 
 
 
