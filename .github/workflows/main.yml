@@ -3,7 +3,8 @@ name: Docker Build and Push
 # main 브랜치에 코드가 Push 될 때마다 이 작업 지시서가 실행됩니다!
 on:
   push:
-    branches: [ "main" ]
+    tags:
+      - 'v*' # v1.1, v2.0 처럼 v로 시작하는 태그일 때만 일꾼 기상!
 
 jobs:
   build:
