@@ -6,6 +6,8 @@
   <img src="https://img.shields.io/badge/Socket-000000?style=flat-square"/>
 </div>
 
+[![Docker Build and Push](https://github.com/Pixeleee/port_scanner/actions/workflows/main.yml/badge.svg)](https://github.com/Pixeleee/port_scanner/actions/workflows/main.yml)
+
 <br>
 
 ## 프로젝트 소개
@@ -39,3 +41,4 @@ docker run -it pixelee/port-scanner:v1.1 -t host.docker.internal -p 80,443,445
 프로젝트를 진행하며 겪은 트러블슈팅과 기술적 고민을 블로그에 기록했습니다.
 
 https://velog.io/@pixeleee/%EB%AF%B8%EB%8B%88-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%ED%8F%AC%ED%8A%B8%EC%8A%A4%EC%BA%90%EB%84%881
+
